@@ -4,27 +4,24 @@ using UnityEngine;
 
 public class MoveLeftX : MonoBehaviour
 {
-    private float speed = 10;
-    private float leftBound = -15;
-    private PlayerControllerX playerControllerScript; // Note: PlayerControllerX for the X-version game
+    public float speed = 10f;
+    private float leftBound = -15f;
+    private PlayerControllerX playerControllerScript;
 
-    // Start is called before the first frame update
     void Start()
     {
-        // Get the PlayerControllerX script from the Player GameObject
         playerControllerScript = GameObject.Find("Player").GetComponent<PlayerControllerX>();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // ✅ Background (and any other object) moves left while game is NOT over
+        // ✅ Move left only while game is not over
         if (playerControllerScript.gameOver == false)
         {
             transform.Translate(Vector3.left * Time.deltaTime * speed);
         }
 
-        // ✅ Destroy obstacles that go out of bounds
+        // ✅ Destroy obstacles that go off-screen
         if (transform.position.x < leftBound && gameObject.CompareTag("Obstacle"))
         {
             Destroy(gameObject);
