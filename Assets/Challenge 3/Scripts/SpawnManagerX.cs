@@ -4,18 +4,17 @@ using UnityEngine;
 
 public class SpawnManagerX : MonoBehaviour
 {
-    public GameObject[] objectPrefabs;
-    private Vector3 spawnPos = new Vector3(30, 5, 0);
+    public GameObject obstaclePrefab;
+    private Vector3 spawnPos = new Vector3(25, 10, 0);
     private float startDelay = 2;
-    private float repeatRate = 1.5f;
-
+    private float repeatRate = 2;
     private PlayerControllerX playerControllerScript;
 
     // Start is called before the first frame update
     void Start()
     {
         playerControllerScript = GameObject.Find("Player").GetComponent<PlayerControllerX>();
-        InvokeRepeating("SpawnObjects", startDelay, repeatRate);
+        InvokeRepeating("SpawnObstacle", startDelay, repeatRate);
     }
 
     // Update is called once per frame
@@ -24,14 +23,11 @@ public class SpawnManagerX : MonoBehaviour
 
     }
 
-    void SpawnObjects()
+    void SpawnObstacle()
     {
         if (playerControllerScript.gameOver == false)
         {
-            int index = Random.Range(0, objectPrefabs.Length);
-            Vector3 randomSpawnPos = new Vector3(30, Random.Range(5, 15), 0);
-
-            Instantiate(objectPrefabs[index], randomSpawnPos, objectPrefabs[index].transform.rotation);
+            Instantiate(obstaclePrefab, spawnPos, obstaclePrefab.transform.rotation);
         }
     }
 }
