@@ -4,58 +4,76 @@ using UnityEngine;
 
 public class PlayerControllerX : MonoBehaviour
 {
-    public bool gameOver;
-
     private Rigidbody playerRb;
-    public float floatForce;
-    private float gravityModifier = 1.5f;
+    private Animator playerAnim;
+    private AudioSource playerAudio;
 
-    public GameObject fireworksParticle; // Fireworks object
+    public float floatForce = 10;
+    public float gravityModifier = 1.5f;
+    public bool gameOver = false;
 
-    // Limits for balloon height
+    public ParticleSystem explosionParticle;
+    public ParticleSystem fireworksParticle;
+    public AudioClip floatSound;
+    public AudioClip crashSound;
+
     private float upperLimit = 14.5f;
     private float lowerLimit = 1.0f;
 
+    // Start is called before the first frame update
     void Start()
     {
-        Physics.gravity *= gravityModifier;
         playerRb = GetComponent<Rigidbody>();
+        playerAnim = GetComponent<Animator>();
+        playerAudio = GetComponent<AudioSource>();
+
+        Physics.gravity *= gravityModifier;
     }
 
+    // Update is called once per frame
     void Update()
     {
-        // Float up if space is pressed and game not over
         if (Input.GetKey(KeyCode.Space) && !gameOver)
         {
             playerRb.AddForce(Vector3.up * floatForce);
+            playerAudio.PlayOneShot(floatSound, 1.0f);
         }
 
-        // ✅ Keep balloon from floating too high
+        // Keep player within vertical limits
         if (transform.position.y > upperLimit)
         {
             transform.position = new Vector3(transform.position.x, upperLimit, transform.position.z);
-            playerRb.velocity = Vector3.zero; // Stop upward motion
+            playerRb.velocity = Vector3.zero;
         }
 
-        // ✅ Keep balloon from falling off the screen
         if (transform.position.y < lowerLimit)
         {
             transform.position = new Vector3(transform.position.x, lowerLimit, transform.position.z);
-            playerRb.velocity = Vector3.zero; // Stop downward motion
+            playerRb.velocity = Vector3.zero;
         }
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnCollisionEnter(Collision collision)
     {
-        // When balloon hits the ground
-        if (other.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground"))
         {
             gameOver = true;
-            Debug.Log("GAME OVER!");
-
-            // Fireworks appear at balloon’s position
-            fireworksParticle.transform.position = transform.position;
-            fireworksParticle.SetActive(true);
+            Debug.Log("Game Over!");
+            playerAnim.SetBool("Death_b", true);
+            playerAnim.SetInteger("DeathType_int", 1);
+            explosionParticle.Play();
+            fireworksParticle.Play();
+            playerAudio.PlayOneShot(crashSound, 1.0f);
+        }
+        else if (collision.gameObject.CompareTag("Obstacle"))
+        {
+            gameOver = true;
+            Debug.Log("Game Over!");
+            playerAnim.SetBool("Death_b", true);
+            playerAnim.SetInteger("DeathType_int", 1);
+            explosionParticle.Play();
+            fireworksParticle.Play();
+            playerAudio.PlayOneShot(crashSound, 1.0f);
         }
     }
 }

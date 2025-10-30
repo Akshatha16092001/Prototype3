@@ -5,58 +5,33 @@ using UnityEngine;
 public class SpawnManagerX : MonoBehaviour
 {
     public GameObject[] objectPrefabs;
-    private float spawnDelay = 2f;
-    private float spawnInterval = 1.5f;
+    private Vector3 spawnPos = new Vector3(30, 5, 0);
+    private float startDelay = 2;
+    private float repeatRate = 1.5f;
 
     private PlayerControllerX playerControllerScript;
 
+    // Start is called before the first frame update
     void Start()
     {
         playerControllerScript = GameObject.Find("Player").GetComponent<PlayerControllerX>();
-        InvokeRepeating("SpawnObjects", spawnDelay, spawnInterval);
+        InvokeRepeating("SpawnObjects", startDelay, repeatRate);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
     }
 
     void SpawnObjects()
     {
-        // Random position on right side, random height
-        Vector3 spawnLocation = new Vector3(30, Random.Range(5, 15), 0);
-
-        int index = Random.Range(0, objectPrefabs.Length);
-
-        if (!playerControllerScript.gameOver)
+        if (playerControllerScript.gameOver == false)
         {
-            // ✅ Always spawn upright (no prefab rotation)
-            GameObject spawnedObject = Instantiate(objectPrefabs[index], spawnLocation, Quaternion.identity);
+            int index = Random.Range(0, objectPrefabs.Length);
+            Vector3 randomSpawnPos = new Vector3(30, Random.Range(5, 15), 0);
 
-            // ✅ Force reset any local rotation (in case prefab has rotation)
-            spawnedObject.transform.rotation = Quaternion.identity;
-
-            // ✅ Remove any animator that might be rotating it
-            Animator anim = spawnedObject.GetComponent<Animator>();
-            if (anim != null)
-            {
-                Destroy(anim);
-            }
-
-            // ✅ Disable any rotation script if it exists
-            MonoBehaviour[] scripts = spawnedObject.GetComponents<MonoBehaviour>();
-            foreach (MonoBehaviour script in scripts)
-            {
-                if (script != this && script.enabled && script.GetType().Name.ToLower().Contains("rotate"))
-                {
-                    script.enabled = false;
-                }
-            }
-
-            // ✅ Lock rigidbody motion completely
-            Rigidbody rb = spawnedObject.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.useGravity = false;
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.constraints = RigidbodyConstraints.FreezeAll;
-            }
+            Instantiate(objectPrefabs[index], randomSpawnPos, objectPrefabs[index].transform.rotation);
         }
     }
 }
